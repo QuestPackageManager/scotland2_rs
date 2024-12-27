@@ -8,7 +8,7 @@ use qpm_cli::repository;
 use qpm_cli::resolver::dependency;
 
 // without lib|.so prefix/suffix
-const SCOTLAND2_LIB_NAME: &str = "scotland2";
+const SCOTLAND2_LIB_NAME: &str = "sl2";
 
 const SCOTLAND2_PACKAGE_NAME: &str = "scotland2";
 const SCOTLAND2_HEADER: &str = "modloader.h";
