@@ -1,0 +1,16 @@
+[package]
+name = "scotland2_rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[lib]
+crate-type = ["lib"]
+
+[workspace]
+members = ["example"] 
+
+[build-dependencies]
+qpm_cli = { git = "https://github.com/QuestPackageManager/QPM.CLI.git", default-features = false}
+bindgen = "0.71.0"

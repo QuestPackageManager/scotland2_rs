@@ -1,0 +1,27 @@
+{
+  "rust-analyzer.check.overrideCommand": [
+    "cargo",
+    "ndk",
+    "-t",
+    "x86_64",
+    "--bindgen",
+    "clippy",
+    "--message-format=json"
+  ],
+  "rust-analyzer.cargo.buildScripts.overrideCommand": [
+    "cargo",
+    "ndk",
+    "-t",
+    "x86_64",
+    "--bindgen",
+    "check",
+    "--quiet",
+    "--workspace",
+    "--message-format=json",
+    "--all-targets",
+    "--keep-going"
+  ],
+  "rust-analyzer.cargo.extraEnv": {
+    "RUST_BINDGEN": "1"
+  }
+}
