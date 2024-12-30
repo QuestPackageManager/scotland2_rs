@@ -51,6 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // The input header we would like to generate
         // bindings for.
         // .header(header_path.to_str().unwrap())
+        .generate_cstr(true)
         .header_contents(
             "wrapper.h",
             &format!(
