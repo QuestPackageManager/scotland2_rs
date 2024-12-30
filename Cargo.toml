@@ -13,4 +13,4 @@ members = ["example"]
 
 [build-dependencies]
 qpm_cli = { git = "https://github.com/QuestPackageManager/QPM.CLI.git", default-features = false}
-bindgen = "0.71.0"
+bindgen = "0.71"
