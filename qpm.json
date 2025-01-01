@@ -32,7 +32,7 @@
   "dependencies": [
     {
       "id": "scotland2",
-      "versionRange": "=0.1.6",
+      "versionRange": "=0.2.0",
       "additionalData": {}
     }
   ]

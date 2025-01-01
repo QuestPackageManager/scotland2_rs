@@ -52,16 +52,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // bindings for.
         // .header(header_path.to_str().unwrap())
         .generate_cstr(true)
-        .header_contents(
-            "wrapper.h",
-            &format!(
-                "
-                #include <stdbool.h>    
-                #include \"{}\"
-            ",
-                header_path.to_str().unwrap()
-            ),
-        )
+        .header(header_path.to_str().unwrap())
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
