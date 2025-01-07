@@ -14,8 +14,8 @@ const SCOTLAND2_PACKAGE_NAME: &str = "scotland2";
 const SCOTLAND2_HEADER: &str = "modloader.h";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("cargo:rerun-if-changed=wrapper.h");
     println!("cargo:rerun-if-changed=qpm.json");
+    
 
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -29,13 +29,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         SharedPackageConfig::resolve_from_package(package, &repo)?;
 
     dependency::restore(&out_path, &shared_package, &resolved_deps, &mut repo)?;
-
-    // change if qpm.shared.json modified
-    println!(
-        "cargo:rerun-if-changed={}",
-        out_path.join("qpm.shared.json").display()
-    );
-
     eprintln!("Generating bindings for scotland2");
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
