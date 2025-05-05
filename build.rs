@@ -19,7 +19,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let lib_path = out_path.join("extern").join("libs");
+    let libs_path = out_path.join("extern").join("libs");
+    let bin_path = libs_path.join(SCOTLAND2_LIB_NAME);
     let headers_path = out_path.join("extern").join("includes");
 
     eprintln!("Downloading sl2 from qpm");
@@ -29,6 +30,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         SharedPackageConfig::resolve_from_package(package, &repo)?;
 
     dependency::restore(&out_path, &shared_package, &resolved_deps, &mut repo)?;
+    // Check if debug_libsl2.so exists and rename it to libsl2.so
+    let debug_lib_path = libs_path.join("debug_libsl2.so");
+    if debug_lib_path.exists() {
+        eprintln!("Renaming debug_libsl2.so to libsl2.so");
+        let lib_path = libs_path.join("libsl2.so");
+        std::fs::rename(&debug_lib_path, &lib_path)?;
+    }
+    
+    // assert!(bin_path.with_extension("so").exists(), "lib_path does not exist: {}", bin_path.display());
+
     eprintln!("Generating bindings for scotland2");
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
@@ -45,6 +56,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // bindings for.
         // .header(header_path.to_str().unwrap())
         .generate_cstr(true)
+        .clang_arg("-includestdint.h") 
+        .clang_arg("-includestdbool.h") 
         .header(header_path.to_str().unwrap())
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
@@ -54,6 +67,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings");
 
+
     // Write the bindings to the $OUT_DIR/bindings.rs file.
     bindings
         .write_to_file(out_path.join("bindings.rs"))
@@ -61,7 +75,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // }
 
     // Tell cargo to look for shared libraries in the specified directory
-    println!("cargo:rustc-link-search={}", lib_path.display());
+    println!("cargo:rustc-link-search={}", libs_path.display());
 
     // Tell cargo to tell rustc to link the system bzip2
     // shared library.
