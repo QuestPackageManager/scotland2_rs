@@ -8,7 +8,7 @@ use qpm_cli::repository;
 use qpm_cli::resolver::dependency;
 
 // without lib|.so prefix/suffix
-const SCOTLAND2_LIB_NAME: &str = "sl2";
+const SCOTLAND2_LIB_NAME: &str = "sl2.debug";
 
 const SCOTLAND2_PACKAGE_NAME: &str = "scotland2";
 const SCOTLAND2_HEADER: &str = "modloader.h";
@@ -30,14 +30,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         SharedPackageConfig::resolve_from_package(package, &repo)?;
 
     dependency::restore(&out_path, &shared_package, &resolved_deps, &mut repo)?;
-    // Check if debug_libsl2.so exists and rename it to libsl2.so
-    let debug_lib_path = libs_path.join("debug_libsl2.so");
-    if debug_lib_path.exists() {
-        eprintln!("Renaming debug_libsl2.so to libsl2.so");
-        let lib_path = libs_path.join("libsl2.so");
-        std::fs::rename(&debug_lib_path, &lib_path)?;
-    }
-    
     // assert!(bin_path.with_extension("so").exists(), "lib_path does not exist: {}", bin_path.display());
 
     eprintln!("Generating bindings for scotland2");
