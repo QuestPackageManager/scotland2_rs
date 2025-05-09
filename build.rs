@@ -1,12 +1,6 @@
 use std::env;
 use std::path::PathBuf;
 
-use qpm_cli::models::package::{PackageConfigExtensions, SharedPackageConfigExtensions};
-use qpm_cli::package::models::dependency::SharedPackageConfig;
-use qpm_cli::package::models::package::PackageConfig;
-use qpm_cli::repository;
-use qpm_cli::resolver::dependency;
-
 // without lib|.so prefix/suffix
 const SCOTLAND2_LIB_NAME: &str = "sl2.debug";
 
@@ -15,21 +9,27 @@ const SCOTLAND2_HEADER: &str = "modloader.h";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=qpm.json");
-    
 
-    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let libs_path = out_path.join("extern").join("libs");
-    let bin_path = libs_path.join(SCOTLAND2_LIB_NAME);
-    let headers_path = out_path.join("extern").join("includes");
+    // invoke qpm to download the package
+    // and its dependencies
 
+    let qpm_path = PathBuf::from(env::var("QPM_PATH").unwrap_or_else(|_| "qpm".into()));
+
+    // call restore
     eprintln!("Downloading sl2 from qpm");
-    let package = PackageConfig::read(manifest_path)?;
-    let mut repo = repository::useful_default_new(false)?;
-    let (shared_package, resolved_deps) =
-        SharedPackageConfig::resolve_from_package(package, &repo)?;
+    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
-    dependency::restore(&out_path, &shared_package, &resolved_deps, &mut repo)?;
+    let mut cmd = std::process::Command::new(qpm_path);
+    cmd.current_dir(&manifest_path)
+        .arg("restore")
+        // .arg("--quiet")
+        .status()
+        .map_err(|e| format!("Failed to run qpm: {}", e))?;
+
+    let libs_path = manifest_path.join("extern").join("libs");
+    let headers_path = manifest_path.join("extern").join("includes");
+    let bin_path = libs_path.join(SCOTLAND2_LIB_NAME);
+
     // assert!(bin_path.with_extension("so").exists(), "lib_path does not exist: {}", bin_path.display());
 
     eprintln!("Generating bindings for scotland2");
@@ -48,8 +48,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // bindings for.
         // .header(header_path.to_str().unwrap())
         .generate_cstr(true)
-        .clang_arg("-includestdint.h") 
-        .clang_arg("-includestdbool.h") 
+        .clang_arg("-includestdint.h")
+        .clang_arg("-includestdbool.h")
         .header(header_path.to_str().unwrap())
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
@@ -59,6 +59,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings");
 
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
     bindings

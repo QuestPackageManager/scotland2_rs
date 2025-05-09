@@ -6,11 +6,10 @@ edition = "2021"
 [dependencies]
 
 [lib]
-crate-type = ["lib"]
+crate-type = ["lib", "cdylib"]
 
 [workspace]
-members = ["example"] 
+members = ["example"]
 
 [build-dependencies]
-qpm_cli = { git = "https://github.com/QuestPackageManager/QPM.CLI.git", default-features = false}
-bindgen = "0.71"
+bindgen = { version = "0.71", default-features = false }

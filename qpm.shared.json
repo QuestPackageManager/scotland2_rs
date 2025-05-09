@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/QuestPackageManager/QPM.Package/refs/heads/main/qpm.shared.schema.json",
+  "config": {
+    "version": "0.4.0",
+    "sharedDir": "shared",
+    "dependenciesDir": "extern",
+    "info": {
+      "name": "scotland2_rs",
+      "id": "scotland2_rs",
+      "version": "0.1.0",
+      "url": null,
+      "additionalData": {
+        "headersOnly": true,
+        "cmake": false
+      }
+    },
+    "workspace": {
+      "scripts": {
+        "build": [
+          "cargo ndk --bindgen -t arm64-v8a -o ./build build --release"
+        ],
+        "check": [
+          "cargo ndk --bindgen -t arm64-v8a clippy --all-targets --all-features -- -D warnings"
+        ],
+        "fix": [
+          "cargo ndk --bindgen -t arm64-v8a fix --allow-dirty --allow-staged"
+        ]
+      },
+      "ndk": "^27.2.12479018",
+      "qmodIncludeDirs": [],
+      "qmodIncludeFiles": [],
+      "qmodOutput": null
+    },
+    "dependencies": [
+      {
+        "id": "scotland2",
+        "versionRange": "^0.1.6",
+        "additionalData": {}
+      }
+    ]
+  },
+  "restoredDependencies": [
+    {
+      "dependency": {
+        "id": "scotland2",
+        "versionRange": "=0.1.6",
+        "additionalData": {
+          "soLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.6/libsl2.so",
+          "debugSoLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.6/debug_libsl2.so",
+          "overrideSoName": "libsl2.so",
+          "branchName": "version/v0_1_6"
+        }
+      },
+      "version": "0.1.6"
+    }
+  ]
+}
