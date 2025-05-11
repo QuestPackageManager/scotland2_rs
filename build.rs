@@ -17,17 +17,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // call restore
     eprintln!("Downloading sl2 from qpm");
-    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+
+    // copy from manifest directory to out_path
+    {
+        let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+        // cp qpm.json to out_path
+        let qpm_json_path = manifest_path.join("qpm.json");
+        let qpm_json_out_path = out_path.join("qpm.json");
+        std::fs::copy(&qpm_json_path, &qpm_json_out_path)
+            .map_err(|e| format!("Failed to copy qpm.json: {}", e))?;
+        // cp qpm.shared.json to out_path
+        let qpm_shared_json_path = manifest_path.join("qpm.shared.json");
+        let qpm_shared_json_out_path = out_path.join("qpm.shared.json");
+        std::fs::copy(&qpm_shared_json_path, &qpm_shared_json_out_path)
+            .map_err(|e| format!("Failed to copy qpm.shared.json: {}", e))?;
+    }
 
     let mut cmd = std::process::Command::new(qpm_path);
-    cmd.current_dir(&manifest_path)
+    cmd.current_dir(&out_path)
         .arg("restore")
         // .arg("--quiet")
         .status()
         .map_err(|e| format!("Failed to run qpm: {}", e))?;
 
-    let libs_path = manifest_path.join("extern").join("libs");
-    let headers_path = manifest_path.join("extern").join("includes");
+    let libs_path = out_path.join("extern").join("libs");
+    let headers_path = out_path.join("extern").join("includes");
     let bin_path = libs_path.join(SCOTLAND2_LIB_NAME);
 
     // assert!(bin_path.with_extension("so").exists(), "lib_path does not exist: {}", bin_path.display());
@@ -58,8 +74,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .generate()
         // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings");
-
-    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
     bindings
